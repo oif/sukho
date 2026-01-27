@@ -214,4 +214,25 @@
 
 由于 LLM 上下文有限，长任务需通过 `work_log.md` + Git 协同管理（详见"Git 提交策略"和"work_log.md 规范"）。
 
-- 工具支持：集成 linter（如 golangci-lint、eslint）和格式化工具（如 gofmt、prettier）保持一致性。
+#### Compacting 后恢复流程
+
+当检测到上下文被压缩或任务中断后，使用 subagent 执行恢复检查（节省主 context）：
+
+1. 读取 `work_log.md`，提取最近任务的目标、状态、进度
+2. 执行 `git status`、`git log --oneline -10`、`git diff --stat`
+3. 返回精简摘要：
+
+```
+任务：[一句话目标]
+分支：[当前分支名]
+已完成：[最近相关 commit]
+进行中：[未提交的改动文件]
+待办：[剩余项]
+风险：[异常或冲突，无则省略]
+```
+
+接收摘要后直接继续工作，有明显异常时再问用户。
+
+#### 工具支持
+
+- 集成 linter（如 golangci-lint、eslint）和格式化工具（如 gofmt、prettier）保持一致性。
